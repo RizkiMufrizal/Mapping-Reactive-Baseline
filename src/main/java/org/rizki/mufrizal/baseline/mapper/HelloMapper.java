@@ -15,6 +15,9 @@ public class HelloMapper {
     @Autowired
     private Environment environment;
 
+    @Autowired
+    private HarmonizedMapper harmonizedMapper;
+
     public HelloClientRequest toHelloClientRequest(HelloServerRequest helloServerRequest) {
         return HelloClientRequest.builder()
                 .hash(environment.getRequiredProperty("backend.secret.key"))
@@ -23,13 +26,23 @@ public class HelloMapper {
                 .build();
     }
 
-    public Mono<HelloServerResponse> toHelloServerResponse(Mono<HelloClientResponse> helloClientResponseMono) {
+    public Mono<?> toHelloServerResponse(Mono<HelloClientResponse> helloClientResponseMono) {
         return helloClientResponseMono
-                .map(hello -> HelloServerResponse.builder()
-                        .referceNumber(hello.getReferceNumber())
-                        .message(hello.getMessage())
-                        .code(hello.getCode())
-                        .description(hello.getDescription())
-                        .build());
+                .flatMap(hello ->
+                        harmonizedMapper.getHarmonized(hello.getCode())
+                                .map(harmonized -> {
+                                            if (!harmonized.getIsError()) {
+                                                return HelloServerResponse.builder()
+                                                        .referceNumber(hello.getReferceNumber())
+                                                        .message(hello.getMessage())
+                                                        .code(harmonized.getCode())
+                                                        .description(harmonized.getMessage())
+                                                        .build();
+                                            }
+                                            return harmonizedMapper.errorHarmonized(harmonized);
+                                        }
+                                )
+                                .switchIfEmpty(Mono.defer(() -> Mono.just(harmonizedMapper.defaultHarmonized())))
+                );
     }
 }

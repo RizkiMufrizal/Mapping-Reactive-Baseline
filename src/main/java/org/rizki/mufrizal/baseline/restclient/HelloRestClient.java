@@ -4,7 +4,6 @@ import org.rizki.mufrizal.baseline.mapper.HelloMapper;
 import org.rizki.mufrizal.baseline.mapper.object.client.request.HelloClientRequest;
 import org.rizki.mufrizal.baseline.mapper.object.client.response.HelloClientResponse;
 import org.rizki.mufrizal.baseline.mapper.object.server.request.HelloServerRequest;
-import org.rizki.mufrizal.baseline.mapper.object.server.response.HelloServerResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -26,7 +25,7 @@ public class HelloRestClient {
     @Autowired
     private Environment environment;
 
-    public Mono<HelloServerResponse> sayHello(HelloServerRequest helloServerRequest) {
+    public Mono<?> sayHello(HelloServerRequest helloServerRequest) {
         HelloClientRequest helloClientRequest = helloMapper.toHelloClientRequest(helloServerRequest);
 
         return helloMapper.toHelloServerResponse(
