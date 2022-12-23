@@ -4,7 +4,6 @@ import lombok.extern.log4j.Log4j2;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.dynamic.HttpClientTransportDynamic;
-import org.eclipse.jetty.http.HttpField;
 import org.eclipse.jetty.io.ClientConnector;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.springframework.context.annotation.Bean;
@@ -44,33 +43,49 @@ public class WebClientConfiguration {
     }
 
     private Request logging(Request inboundRequest) {
-        inboundRequest.onRequestBegin(request -> {
-            log.info("Request Url {}", request.getURI());
-            log.info("Request Method {}", request.getMethod());
-        });
+        StringBuilder logging = new StringBuilder();
+        // Request Logging
+        inboundRequest.onRequestBegin(request ->
+                logging.append("Request Url ").append(request.getURI())
+                        .append("\n")
+                        .append("Request Method ").append(request.getMethod())
+                        .append("\n"));
         inboundRequest.onRequestHeaders(request -> {
-            for (HttpField header : request.getHeaders()) {
-                log.info("Header {} : {}", header.getName(), header.getValue());
-            }
+            logging.append("Request Headers:\n");
+            request.getHeaders().stream().parallel().forEach(header -> logging.append("\t").append(header.getName()).append(" : ").append(header.getValue()).append("\n"));
         });
         inboundRequest.onRequestContent((request, content) -> {
             var bufferAsString = StandardCharsets.UTF_8.decode(content).toString();
-            log.info("Request Body {}", bufferAsString);
+            logging.append("Request Body ").append(bufferAsString)
+                    .append("\n");
         });
-        inboundRequest.onResponseBegin(response -> {
-            log.info("Response Http Status {}", response.getStatus());
-            log.info("Response Http Message {}", response.getReason());
-            log.info("Response Http Version {}", response.getVersion());
-        });
+
+        // Response Logging
+        inboundRequest.onResponseBegin(response ->
+                logging.append("Response Http Status ").append(response.getStatus())
+                        .append("\n")
+                        .append("Response Http Message ").append(response.getReason())
+                        .append("\n")
+                        .append("Response Http Version ").append(response.getVersion())
+                        .append("\n")
+        );
         inboundRequest.onResponseHeaders(response -> {
-            for (HttpField header : response.getHeaders()) {
-                log.info("Header {} : {}", header.getName(), header.getValue());
-            }
+            logging.append("Response Headers:\n");
+            response.getHeaders().stream().parallel().forEach(header -> logging.append("\t").append(header.getName()).append(" : ").append(header.getValue()).append("\n"));
         });
         inboundRequest.onResponseContent(((response, content) -> {
             var bufferAsString = StandardCharsets.UTF_8.decode(content).toString();
-            log.info("Response Body {}", bufferAsString);
+            logging.append("Response Body ").append(bufferAsString);
         }));
+
+        inboundRequest.onRequestSuccess(request -> {
+            log.info("====================Rest Client Begin====================");
+            log.info(logging.toString());
+        });
+        inboundRequest.onResponseSuccess(response -> {
+            log.info(logging.toString());
+            log.info("====================Rest Client End====================");
+        });
 
         return inboundRequest;
     }
