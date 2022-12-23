@@ -1,5 +1,8 @@
 package org.rizki.mufrizal.baseline.mapper;
 
+import org.rizki.mufrizal.baseline.mapper.harmonized.HarmonizedMapper;
+import org.rizki.mufrizal.baseline.mapper.object.server.response.GeneralServerResponse;
+import org.rizki.mufrizal.baseline.mapper.harmonized.Harmonized;
 import org.rizki.mufrizal.baseline.mapper.object.client.request.HelloClientRequest;
 import org.rizki.mufrizal.baseline.mapper.object.client.response.HelloClientResponse;
 import org.rizki.mufrizal.baseline.mapper.object.server.request.HelloServerRequest;
@@ -26,23 +29,21 @@ public class HelloMapper {
                 .build();
     }
 
-    public Mono<?> toHelloServerResponse(Mono<HelloClientResponse> helloClientResponseMono) {
+    public Mono<GeneralServerResponse> toHelloServerResponse(Mono<HelloClientResponse> helloClientResponseMono) {
         return helloClientResponseMono
-                .flatMap(hello ->
-                        harmonizedMapper.getHarmonized(hello.getCode())
-                                .map(harmonized -> {
-                                            if (!harmonized.getIsError()) {
-                                                return HelloServerResponse.builder()
-                                                        .referceNumber(hello.getReferceNumber())
-                                                        .message(hello.getMessage())
-                                                        .code(harmonized.getCode())
-                                                        .description(harmonized.getMessage())
-                                                        .build();
-                                            }
-                                            return harmonizedMapper.errorHarmonized(harmonized);
-                                        }
-                                )
-                                .switchIfEmpty(Mono.defer(() -> Mono.just(harmonizedMapper.defaultHarmonized())))
-                );
+                .flatMap(hello -> harmonizedMapper.getHarmonized("BE", hello.getCode())
+                        .map(ha -> {
+                            if (ha instanceof Harmonized harmonized) {
+                                return harmonizedMapper.successHarmonized(
+                                        HelloServerResponse.builder()
+                                                .referceNumber(hello.getReferceNumber())
+                                                .message(hello.getMessage())
+                                                .code(harmonized.getCode())
+                                                .description(harmonized.getMessage())
+                                                .build(),
+                                        harmonized.getHttpStatus());
+                            }
+                            return (GeneralServerResponse) ha;
+                        }));
     }
 }

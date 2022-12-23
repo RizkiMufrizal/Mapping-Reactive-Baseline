@@ -17,10 +17,10 @@ public class HelloController {
     private HelloRestClient helloRestClient;
 
     @PostMapping(value = "/api/hello")
-    public ResponseEntity<Mono<?>> creditTransfer(@RequestBody HelloServerRequest helloServerRequest) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(helloRestClient.sayHello(helloServerRequest));
+    public Mono<ResponseEntity<Object>> helloWorld(@RequestBody HelloServerRequest helloServerRequest) {
+        return helloRestClient.sayHello(helloServerRequest)
+                .map(response -> ResponseEntity.status(HttpStatus.valueOf(response.getHttpStatus())).body(response.getBody()));
+
     }
 
 }

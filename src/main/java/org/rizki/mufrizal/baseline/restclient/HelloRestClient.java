@@ -1,6 +1,7 @@
 package org.rizki.mufrizal.baseline.restclient;
 
 import org.rizki.mufrizal.baseline.mapper.HelloMapper;
+import org.rizki.mufrizal.baseline.mapper.object.server.response.GeneralServerResponse;
 import org.rizki.mufrizal.baseline.mapper.object.client.request.HelloClientRequest;
 import org.rizki.mufrizal.baseline.mapper.object.client.response.HelloClientResponse;
 import org.rizki.mufrizal.baseline.mapper.object.server.request.HelloServerRequest;
@@ -25,7 +26,7 @@ public class HelloRestClient {
     @Autowired
     private Environment environment;
 
-    public Mono<?> sayHello(HelloServerRequest helloServerRequest) {
+    public Mono<GeneralServerResponse> sayHello(HelloServerRequest helloServerRequest) {
         HelloClientRequest helloClientRequest = helloMapper.toHelloClientRequest(helloServerRequest);
 
         return helloMapper.toHelloServerResponse(

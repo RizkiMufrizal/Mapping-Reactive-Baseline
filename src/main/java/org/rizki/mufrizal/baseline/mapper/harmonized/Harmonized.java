@@ -1,4 +1,4 @@
-package org.rizki.mufrizal.baseline.mapper.object;
+package org.rizki.mufrizal.baseline.mapper.harmonized;
 
 import lombok.Builder;
 import lombok.Getter;
