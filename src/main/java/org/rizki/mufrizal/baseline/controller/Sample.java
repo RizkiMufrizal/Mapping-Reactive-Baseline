@@ -14,7 +14,7 @@ import java.util.UUID;
 public class Sample {
 
     @PostMapping(value = "/api/test")
-    public ResponseEntity<HelloClientResponse> test(@RequestBody HelloClientRequest helloClientRequest) {
+    public ResponseEntity<?> test(@RequestBody HelloClientRequest helloClientRequest) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(HelloClientResponse.builder()

@@ -6,10 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +18,7 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Mono<?>> generalException(Exception ex) {
-        logging(ex);
+        ExceptionHelper.logging(ex);
 
         Map<String, Object> stringObjectsMap = new HashMap<>();
         stringObjectsMap.put("Code", 500);
@@ -32,7 +31,7 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(WebClientRequestException.class)
     public ResponseEntity<Mono<?>> webClientRequestException(WebClientRequestException ex) {
-        logging(ex);
+        ExceptionHelper.logging(ex);
 
         Map<String, Object> stringObjectsMap = new HashMap<>();
         stringObjectsMap.put("Code", 500);
@@ -43,11 +42,17 @@ public class RestExceptionHandler {
                 .body(Mono.just(stringObjectsMap));
     }
 
-    private void logging(Exception ex) {
-        StringWriter stringWriter = new StringWriter();
-        log.error("Exception {}", ex.getMessage());
-        ex.printStackTrace(new PrintWriter(stringWriter));
-        log.error("Exception {}", stringWriter);
+    @ExceptionHandler(WebClientResponseException.class)
+    public ResponseEntity<Mono<?>> webClientResponseException(WebClientResponseException ex) {
+        ExceptionHelper.logging(ex);
+
+        Map<String, Object> stringObjectsMap = new HashMap<>();
+        stringObjectsMap.put("Code", 500);
+        stringObjectsMap.put("Description", "Error connection");
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Mono.just(stringObjectsMap));
     }
 
 }

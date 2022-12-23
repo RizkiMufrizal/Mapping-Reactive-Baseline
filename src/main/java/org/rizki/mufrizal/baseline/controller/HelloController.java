@@ -17,7 +17,7 @@ public class HelloController {
     private HelloRestClient helloRestClient;
 
     @PostMapping(value = "/api/hello")
-    public Mono<ResponseEntity<Object>> helloWorld(@RequestBody HelloServerRequest helloServerRequest) {
+    public Mono<ResponseEntity<?>> helloWorld(@RequestBody HelloServerRequest helloServerRequest) {
         return helloRestClient.sayHello(helloServerRequest)
                 .map(response -> ResponseEntity.status(HttpStatus.valueOf(response.getHttpStatus())).body(response.getBody()));
 

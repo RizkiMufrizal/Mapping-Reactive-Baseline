@@ -39,7 +39,8 @@ public class WebClientConfiguration {
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .defaultHeader(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.toString())
-                .clientConnector(new JettyClientHttpConnector(httpClient)).build();
+                .clientConnector(new JettyClientHttpConnector(httpClient))
+                .build();
     }
 
     private Request logging(Request inboundRequest) {

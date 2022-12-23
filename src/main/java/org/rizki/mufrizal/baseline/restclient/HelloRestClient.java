@@ -1,10 +1,12 @@
 package org.rizki.mufrizal.baseline.restclient;
 
+import lombok.extern.log4j.Log4j2;
+import org.rizki.mufrizal.baseline.exception.RestClientExceptionHandler;
 import org.rizki.mufrizal.baseline.mapper.HelloMapper;
-import org.rizki.mufrizal.baseline.mapper.object.server.response.GeneralServerResponse;
 import org.rizki.mufrizal.baseline.mapper.object.client.request.HelloClientRequest;
 import org.rizki.mufrizal.baseline.mapper.object.client.response.HelloClientResponse;
 import org.rizki.mufrizal.baseline.mapper.object.server.request.HelloServerRequest;
+import org.rizki.mufrizal.baseline.mapper.object.server.response.GeneralServerResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -15,6 +17,7 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 
 @Component
+@Log4j2
 public class HelloRestClient {
 
     @Autowired
@@ -37,6 +40,7 @@ public class HelloRestClient {
                         .retrieve()
                         .bodyToMono(HelloClientResponse.class)
                         .timeout(Duration.ofSeconds(Long.parseLong(environment.getRequiredProperty("backend.timeout"))))
+                        .onErrorResume(ex -> new RestClientExceptionHandler<HelloClientResponse>().onErrorResume(ex, HelloClientResponse.class))
         );
     }
 
