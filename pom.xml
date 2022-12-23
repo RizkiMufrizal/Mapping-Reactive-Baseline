@@ -15,13 +15,17 @@
     <description>Mapping Reactive Baseline</description>
     <properties>
         <java.version>17</java.version>
+        <jetty-reactive-httpclient.version>3.0.7</jetty-reactive-httpclient.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-reactive-httpclient</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

@@ -33,9 +33,10 @@ public class HelloRestClient {
                 webClient.post()
                         .uri(environment.getRequiredProperty("backend.url"))
                         .body(BodyInserters.fromValue(helloClientRequest))
+                        .headers(httpHeaders -> httpHeaders.setBasicAuth(environment.getRequiredProperty("backend.username"), environment.getRequiredProperty("backend.password")))
                         .retrieve()
                         .bodyToMono(HelloClientResponse.class)
-                        .timeout(Duration.ofSeconds(5L))
+                        .timeout(Duration.ofSeconds(Long.parseLong(environment.getRequiredProperty("backend.timeout"))))
         );
     }
 
