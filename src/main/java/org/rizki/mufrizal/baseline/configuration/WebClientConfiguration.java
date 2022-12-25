@@ -1,4 +1,4 @@
-package org.rizki.mufrizal.baseline.configuration.webclient;
+package org.rizki.mufrizal.baseline.configuration;
 
 import lombok.extern.log4j.Log4j2;
 import org.eclipse.jetty.client.HttpClient;
@@ -6,6 +6,7 @@ import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.dynamic.HttpClientTransportDynamic;
 import org.eclipse.jetty.io.ClientConnector;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -21,12 +22,16 @@ import java.nio.charset.StandardCharsets;
 public class WebClientConfiguration {
 
     @Bean
-    public WebClient createWebClient() {
+    public WebClient jettyWebClient() {
         SslContextFactory.Client sslContextFactory = new SslContextFactory.Client();
         sslContextFactory.setTrustAll(true);
         sslContextFactory.setEndpointIdentificationAlgorithm("HTTPS");
         ClientConnector clientConnector = new ClientConnector();
         clientConnector.setSslContextFactory(sslContextFactory);
+        QueuedThreadPool queuedThreadPool = new QueuedThreadPool();
+        queuedThreadPool.setMaxThreads(100);
+        queuedThreadPool.setMinThreads(5);
+
         HttpClient httpClient = new HttpClient(new HttpClientTransportDynamic(clientConnector)) {
             @Override
             public Request newRequest(URI uri) {
@@ -34,7 +39,9 @@ public class WebClientConfiguration {
                 return logging(request);
             }
         };
-
+        httpClient.setExecutor(queuedThreadPool);
+        httpClient.setMaxConnectionsPerDestination(50);
+        httpClient.setMaxRequestsQueuedPerDestination(50);
         return WebClient.builder()
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
