@@ -68,7 +68,7 @@ class MappingReactiveBaselineApplicationTests {
     }
 
     @Test
-    void helloController() throws JsonProcessingException {
+    void helloController() {
         HelloServerRequest helloServerRequest = new HelloServerRequest();
         helloServerRequest.setMessage("Hello Test");
         helloServerRequest.setReferceNumber(UUID.randomUUID().toString());
