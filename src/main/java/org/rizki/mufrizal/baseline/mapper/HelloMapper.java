@@ -30,20 +30,20 @@ public class HelloMapper {
     }
 
     public Mono<GeneralServerResponse> toHelloServerResponse(Mono<HelloClientResponse> helloClientResponseMono) {
-        return helloClientResponseMono
-                .flatMap(hello -> harmonizedMapper.getHarmonized("BE", hello.getCode())
-                        .map(ha -> {
-                            if (ha instanceof Harmonized harmonized) {
-                                return harmonizedMapper.successHarmonized(
-                                        HelloServerResponse.builder()
-                                                .referceNumber(hello.getReferceNumber())
-                                                .message(hello.getMessage())
-                                                .code(harmonized.getCode())
-                                                .description(harmonized.getMessage())
-                                                .build(),
-                                        harmonized.getHttpStatus());
-                            }
-                            return (GeneralServerResponse) ha;
-                        }));
+        return helloClientResponseMono.zipWhen(hello -> harmonizedMapper.getHarmonized("BE", hello.getCode()))
+                .flatMap(data -> {
+                    HelloClientResponse helloClientResponse = data.getT1();
+                    if (data.getT2() instanceof Harmonized harmonized) {
+                        return harmonizedMapper.successHarmonized(
+                                HelloServerResponse.builder()
+                                        .referceNumber(helloClientResponse.getReferceNumber())
+                                        .message(helloClientResponse.getMessage())
+                                        .code(harmonized.getCode())
+                                        .description(harmonized.getMessage())
+                                        .build(),
+                                harmonized.getHttpStatus());
+                    }
+                    return Mono.just((GeneralServerResponse) data.getT2());
+                });
     }
 }

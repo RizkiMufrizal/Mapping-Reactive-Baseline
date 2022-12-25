@@ -65,10 +65,10 @@ public class HarmonizedMapper {
                 .build();
     }
 
-    public GeneralServerResponse successHarmonized(Object object, Integer httpStatus) {
-        return GeneralServerResponse.builder()
+    public Mono<GeneralServerResponse> successHarmonized(Object object, Integer httpStatus) {
+        return Mono.just(GeneralServerResponse.builder()
                 .body(object)
                 .httpStatus(httpStatus)
-                .build();
+                .build());
     }
 }
