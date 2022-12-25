@@ -12,7 +12,7 @@ public class ReactiveConfiguration {
 
     @Bean
     public NioEventLoopGroup nioEventLoopGroup() {
-        return new NioEventLoopGroup(20);
+        return new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2);
     }
 
     @Bean
