@@ -40,8 +40,6 @@ public class WebClientConfiguration {
             }
         };
         httpClient.setExecutor(queuedThreadPool);
-        httpClient.setMaxConnectionsPerDestination(50);
-        httpClient.setMaxRequestsQueuedPerDestination(50);
         return WebClient.builder()
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
